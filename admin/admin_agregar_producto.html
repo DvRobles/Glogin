@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar y Listar Productos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #333;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            color: #ffa500;
+        }
+        form, #productosContainer {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], textarea, input[type="number"], button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #555;
+            color: #fff;
+        }
+        textarea {
+            resize: vertical;
+        }
+        button {
+            cursor: pointer;
+            background-color: #ffa500;
+            color: #333;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #ff8c00;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #555;
+            text-align: left;
+        }
+        th {
+            background-color: #444;
+        }
+        tr:nth-child(even) {
+            background-color: #666;
+        }
+        img {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <h2>Agregar y Listar Productos</h2>
+    <!-- Botón de Cerrar Sesión -->
+        <div style="position: fixed; top: 20px; right: 20px;">
+            <a href="../logout.php" class="logout-button" style="text-decoration: none; background-color: #f44336; color: white; padding: 10px 20px; border-radius: 5px; font-size: 16px;">Cerrar Sesión</a>
+        </div>
+    <form id="addProductForm" action="insertar_producto.php" method="post">
+        <label for="nombre_producto">Nombre del Producto:</label>
+        <input type="text" id="nombre_producto" name="nombre_producto" required>
+        
+        <label for="descripcion">Descripción:</label>
+        <textarea id="descripcion" name="descripcion" required></textarea>
+        
+        <label for="stock">Stock:</label>
+        <input type="number" id="stock" name="stock" required>
+        
+        <label for="precio">Precio:</label>
+        <input type="number" step="0.01" id="precio" name="precio" required>
+        
+        <label for="url_foto">URL de la Foto:</label>
+        <input type="text" id="url_foto" name="url_foto" required>
+        
+        <button type="submit">Agregar Producto</button>
+    </form>
+    <button id="listarProductosBtn">Listar Productos</button>
+    <div id="productosContainer"></div>
+
+    <script>
+        $(document).ready(function() {
+            // Función para listar productos al hacer clic en el botón
+            $("#listarProductosBtn").click(function() {
+                $.ajax({
+                    url: "listar_productos.php",
+                    type: "GET",
+                    dataType: "json",
+                    success: function(response) {
+                        // Limpiar el contenedor de productos
+                        $("#productosContainer").empty();
+                        
+                        // Verificar si se recibieron productos
+                        if (response && response.length > 0) {
+                            // Construir la tabla de productos
+                            var table = "<table><tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Stock</th><th>Precio</th><th>Foto</th></tr>";
+                            // Iterar sobre los productos en orden ascendente
+                            for (var i = response.length - 1; i >= 0; i--) {
+                                var producto = response[i];
+                                table += "<tr><td>" + producto.id + "</td><td>" + producto.nombre_producto + "</td><td>" + producto.descripcion + "</td><td>" + producto.stock + "</td><td>" + producto.precio + "</td><td><img src='" + producto.url_foto + "' width='100' height='100'></td></tr>";
+                            }
+                            table += "</table>";
+                            // Agregar la tabla al contenedor
+                            $("#productosContainer").append(table);
+                        } else {
+                            // Mostrar mensaje si no hay productos
+                            $("#productosContainer").text("No se encontraron productos.");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Manejar errores de la petición AJAX
+                        console.error("Error al obtener productos:", error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
